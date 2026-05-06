@@ -64,7 +64,8 @@
 <script setup>
 import { ref, reactive } from 'vue'
 import SliderCaptcha from './slider.vue' // 引入组件
-// 定义 Props 和 Emits，实现 v-model:visible 的双向绑定
+import { useUserStore } from '@/stores/user'
+import { loginApi,registerApi }from "@/api/user/index.ts"
 const props = defineProps({
   visible: {
     type: Boolean,
@@ -150,12 +151,30 @@ const validateForm = () => {
 }
 
 // 提交表单
-const handleSubmit = () => {
+const handleSubmit = async () => {
   if (!validateForm()) return
-
-  // 校验通过，抛出事件给父组件，附带当前模式（登录或注册）和表单数据
   const action = isLogin.value ? 'login' : 'register'
-  console.log('cc',formData)
+  const userStore = useUserStore()
+  console.log('action', action)
+  const payload = {
+    username: formData.username,
+    password: formData.password
+  }
+  try {
+    if (isLogin.value) {
+      const res = await loginApi(payload)
+      console.log('登录成功，拿到 Token:', res)
+      userStore.setToken(res.token)
+      closeModal()
+    } else {
+      const res = await registerApi(payload)
+      userStore.setToken(res.token)
+      closeModal()
+    }
+  } catch (error) {
+    console.error('业务或网络异常:', error)
+    errors.username = error.message || '星空连接异常，请重试'
+  }
   emit('success', { action, ...formData })
 }
 // 滑块验证成功回调

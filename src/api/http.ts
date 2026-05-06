@@ -1,10 +1,10 @@
 import axios, { AxiosError, type AxiosInstance, type AxiosRequestConfig } from 'axios'
 import type { ApiEnvelope, NormalizedError } from '@/types/api'
-
+import { useUserStore } from '@/stores/user'
 const REQUEST_TIMEOUT = 10_000
 
 const instance: AxiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE || '/',
+  baseURL: '/nomock',
   timeout: REQUEST_TIMEOUT,
   headers: { 'Content-Type': 'application/json' },
 })
@@ -12,6 +12,10 @@ const instance: AxiosInstance = axios.create({
 instance.interceptors.request.use(
   (config) => {
     // 这里可以塞 token / 埋点 trace-id，预留口子但当前业务不需要
+    const userStore = useUserStore()
+    if (userStore.token) {
+      config.headers['Authorization'] = `Bearer ${userStore.token}`
+    }
     return config
   },
   (err) => Promise.reject(normalize(err)),
@@ -72,7 +76,7 @@ export async function request<TData, TBody = unknown>(
     const resp = await instance.request<ApiEnvelope<TData>>(rest)
     const body = resp.data
     if (body && typeof body === 'object' && 'code' in body) {
-      if (body.code !== 0) {
+      if (body.code !== 200) {
         const e: NormalizedError = { code: body.code, message: body.message || '操作失败' }
         throw e
       }

@@ -12,6 +12,13 @@ export default defineConfig({
   server: {
     port: 5173,
     open: false,
+    proxy: {
+      '/nomock': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/nomock/, '')
+      }
+    }
   },
   build: {
     target: 'es2020',
