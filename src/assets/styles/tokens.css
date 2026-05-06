@@ -1,0 +1,94 @@
+/* 设计变量 —— 颜色取自深紫夜空主题，保持卡牌与背景的层次分离 */
+
+:root {
+  /* 主色板 */
+  --color-bg-deep: #0b0719;
+  --color-bg-mid: #1a0f2e;
+  --color-bg-soft: #251744;
+  --color-surface: #2c1a4d;
+  --color-surface-2: #3a2566;
+
+  /* 强调色 */
+  --color-gold: #d4af37;
+  --color-gold-soft: #e8c97a;
+  --color-purple: #7e5bef;
+  --color-purple-soft: #a78bfa;
+  --color-rose: #d96aa3;
+
+  /* 文本 */
+  --color-text: #ece6ff;
+  --color-text-dim: #b9aed6;
+  --color-text-muted: #756a91;
+
+  /* 反馈 */
+  --color-success: #4ade80;
+  --color-warning: #facc15;
+  --color-danger: #f87171;
+
+  /* 阴影 / 高光（卡片质感关键） */
+  --shadow-card: 0 18px 40px -12px rgba(0, 0, 0, 0.65), 0 4px 8px -4px rgba(0, 0, 0, 0.4);
+  --shadow-card-hover: 0 28px 60px -10px rgba(126, 91, 239, 0.35), 0 6px 14px -4px rgba(0, 0, 0, 0.5);
+  --glow-gold: 0 0 0 1px rgba(212, 175, 55, 0.3), 0 0 24px rgba(212, 175, 55, 0.18);
+
+  /* 圆角 / 间距 / 字号 */
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-card: 14px;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-8: 48px;
+
+  --font-sans: 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', system-ui, -apple-system, sans-serif;
+  --font-serif: 'Noto Serif SC', 'Songti SC', 'STZhongsong', serif;
+
+  --fz-xs: 12px;
+  --fz-sm: 14px;
+  --fz-base: 16px;
+  --fz-lg: 18px;
+  --fz-xl: 22px;
+  --fz-2xl: 28px;
+  --fz-3xl: 36px;
+
+  /* 动画时长（统一节奏） */
+  --dur-fast: 180ms;
+  --dur-base: 320ms;
+  --dur-flip: 720ms;
+  --dur-deal: 600ms;
+
+  /* 缓动函数 */
+  --ease-flip: cubic-bezier(0.4, 0.18, 0.18, 1);
+  --ease-out-back: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* 卡牌尺寸（保留比例 5:8） */
+  --card-w: 180px;
+  --card-h: 288px;
+  --card-perspective: 1400px;
+
+  /* 层级 */
+  --z-mask: 800;
+  --z-toast: 900;
+}
+
+@media (max-width: 640px) {
+  :root {
+    --card-w: 132px;
+    --card-h: 211px;
+    --fz-3xl: 28px;
+    --fz-2xl: 22px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-fast: 0ms;
+    --dur-base: 0ms;
+    --dur-flip: 0ms;
+    --dur-deal: 0ms;
+  }
+}
