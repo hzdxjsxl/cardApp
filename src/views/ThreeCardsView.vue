@@ -1,10 +1,19 @@
 <script setup lang="ts">
-import { onBeforeUnmount } from 'vue'
+import { onBeforeUnmount,ref } from 'vue'
 import DrawStage from '@/components/card/DrawStage.vue'
 import CardMeaning from '@/components/card/CardMeaning.vue'
 import LoadingMask from '@/components/feedback/LoadingMask.vue'
 import { useDraw } from '@/composables/useDraw'
-
+import AuthModal from '@/components/login/loginModel.vue'
+const showAuth = ref(false)
+const handleAuthSuccess = (payload:any) => {
+  showAuth.value = false
+}
+const authMo = ref<any>(null)
+const opModal=()=>{
+  showAuth.value = true
+  authMo.value?.reloadForm()
+}
 const {
   drawn,
   flipped,
@@ -26,6 +35,7 @@ onBeforeUnmount(reset)
 
 <template>
   <section class="three">
+    <AuthModal ref="authMo" v-model:visible="showAuth" @success="handleAuthSuccess" />
     <header class="three__header">
       <h2>三牌阵</h2>
       <p>过去 · 现在 · 未来。从左至右依次解读。</p>
@@ -56,6 +66,9 @@ onBeforeUnmount(reset)
       </button>
       <button v-if="drawn.length" class="btn btn--ghost" :disabled="isBusy" @click="reset">
         清空牌阵
+      </button>
+      <button v-if="allRevealed && drawn[0]" class="btn btn--ghost" :disabled="isBusy" @click="opModal">
+        登录查看更多信息
       </button>
     </div>
 
