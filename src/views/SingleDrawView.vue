@@ -4,12 +4,76 @@ import DrawStage from '@/components/card/DrawStage.vue'
 import CardMeaning from '@/components/card/CardMeaning.vue'
 import LoadingMask from '@/components/feedback/LoadingMask.vue'
 import { useDraw } from '@/composables/useDraw'
-import AuthModal from '@/components/login/loginModel.vue'
+import AuthModal from '@/components/common/loginModel.vue'
+import {useUserStore} from '@/stores/user.ts'
+import { analyzeStreamApi } from '@/api/ai/index.ts'
+import TarotSideAnalyzer from '@/components/common/TarotSideAnalyzer.vue'
+const userStote = useUserStore();
+// 控制侧边栏显示
+const showAnalyzer = ref(false)
+// 传入的流式文本
+const aiResponseText = ref('')
+// 是否正在请求大模型中
+const isLoadingAI = ref(false)
 const showAuth = ref(false)
-const handleAuthSuccess = (payload:any) => {
+
+const handleAuthSuccess = async () => {
   showAuth.value = false
+  showAnalyzer.value = true
+  aiResponseText.value = ''
+  isLoadingAI.value = true
+
+  try {
+    const payload = {
+      cards: drawn.value.map((c) => ({
+        name: c.card.name,
+        position: c.position,
+        label: ''
+      }))
+    }
+
+    // 调用 API 获取流对象[cite: 4]
+    const stream = await analyzeStreamApi(payload)
+    console.log('stream',stream)
+    const reader = stream.getReader()
+    console.log('reader',reader)
+    const decoder = new TextDecoder('utf-8')
+
+    while (true) {
+      const { done, value } = await reader.read()
+      if (done) break
+
+      const chunk = decoder.decode(value, { stream: true })
+      // SSE 协议数据按行分割
+      const lines = chunk.split('\n')
+
+      for (const line of lines) {
+        const trimmedLine = line.trim();
+        try {
+          const dataObj = JSON.parse(trimmedLine);
+          // 严格按照你提供的结构取值：choices -> [0] -> delta -> content
+          // 使用可选链 ?. 防止某一个 chunk 缺少 choices 导致页面崩溃，确保高可用
+          const content = dataObj.choices?.[0]?.delta?.content || "";
+
+          if (content) {
+            // 实时追加到响应式变量，右侧组件会自动显示
+            aiResponseText.value += content;
+          }
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        } catch (e) {
+          // 忽略因为 chunk 截断导致的 JSON 解析错误，等待下一个 chunk 补全即可
+          console.warn("解析碎片中...");
+        }
+      }
+    }
+  } catch (error) {
+    console.error("AI解析异常:", error)
+    aiResponseText.value = "星象连接异常，请检查网络。"
+  } finally {
+    isLoadingAI.value = false
+  }
 }
-const authMo = ref<any>(null)
+const authMo = ref<{ reloadForm: () => void } | null>(null)
 const opModal=()=>{
   showAuth.value = true
   authMo.value?.reloadForm()
@@ -55,8 +119,11 @@ onBeforeUnmount(reset)
       <button v-if="drawn.length" class="btn btn--ghost" :disabled="isBusy" @click="reset">
         清空牌面
       </button>
-      <button v-if="allRevealed && drawn[0]" class="btn btn--ghost" :disabled="isBusy" @click="opModal">
-        登录查看更多信息
+      <button v-if="allRevealed && drawn[0] && !userStote.token" class="btn btn--ghost" :disabled="isBusy" @click="opModal">
+        登录查看解读
+      </button>
+      <button v-if="allRevealed && drawn[0] && userStote.token" class="btn btn--ghost" :disabled="isBusy" @click="handleAuthSuccess">
+        高维能量解读
       </button>
     </div>
 
@@ -67,6 +134,12 @@ onBeforeUnmount(reset)
     </transition>
 
     <LoadingMask :visible="isBusy" tip="星象正在排列…" />
+    <TarotSideAnalyzer
+      :visible="showAnalyzer"
+      :text="aiResponseText"
+      :is-analyzing="isLoadingAI"
+      @close="showAnalyzer = false"
+    />
   </section>
 </template>
 

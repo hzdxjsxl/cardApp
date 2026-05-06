@@ -13,8 +13,9 @@ instance.interceptors.request.use(
   (config) => {
     // 这里可以塞 token / 埋点 trace-id，预留口子但当前业务不需要
     const userStore = useUserStore()
+    console.log('userStore',userStore.token)
     if (userStore.token) {
-      config.headers['Authorization'] = `Bearer ${userStore.token}`
+      config.headers['Authorization'] = userStore.token
     }
     return config
   },
@@ -76,7 +77,7 @@ export async function request<TData, TBody = unknown>(
     const resp = await instance.request<ApiEnvelope<TData>>(rest)
     const body = resp.data
     if (body && typeof body === 'object' && 'code' in body) {
-      if (body.code !== 200) {
+      if (body.code !== 0) {
         const e: NormalizedError = { code: body.code, message: body.message || '操作失败' }
         throw e
       }

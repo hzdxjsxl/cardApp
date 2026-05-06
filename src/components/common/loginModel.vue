@@ -65,7 +65,7 @@
 import { ref, reactive } from 'vue'
 import SliderCaptcha from './slider.vue' // 引入组件
 import { useUserStore } from '@/stores/user'
-import { loginApi,registerApi }from "@/api/user/index.ts"
+import { loginApi,registerApi } from '@/api/user/index.ts'
 const props = defineProps({
   visible: {
     type: Boolean,
@@ -163,17 +163,15 @@ const handleSubmit = async () => {
   try {
     if (isLogin.value) {
       const res = await loginApi(payload)
-      console.log('登录成功，拿到 Token:', res)
-      userStore.setToken(res.token)
-      closeModal()
+      userStore.setToken(res)
     } else {
       const res = await registerApi(payload)
-      userStore.setToken(res.token)
-      closeModal()
+      console.log('res.token',res)
+      userStore.setToken(res)
     }
+    closeModal()
   } catch (error) {
-    console.error('业务或网络异常:', error)
-    errors.username = error.message || '星空连接异常，请重试'
+    console.error('异常:', error)
   }
   emit('success', { action, ...formData })
 }
@@ -185,7 +183,6 @@ const handleSliderSuccess = () => {
 </script>
 
 <style scoped>
-/* 弹窗遮罩层：继承背景的神秘感，增加毛玻璃效果 */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -199,8 +196,6 @@ const handleSliderSuccess = () => {
   align-items: center;
   z-index: 9999;
 }
-
-/* 主容器：暗黑紫渐变 + 细微的紫色光晕边框 */
 .modal-container {
   position: relative;
   width: 380px;
@@ -211,8 +206,6 @@ const handleSliderSuccess = () => {
   padding: 40px 30px;
   color: #E2E2E2;
 }
-
-/* 关闭按钮 */
 .close-btn {
   position: absolute;
   top: 16px;
@@ -225,10 +218,8 @@ const handleSliderSuccess = () => {
   transition: color 0.3s;
 }
 .close-btn:hover {
-  color: #D4AF37; /* 悬停变为截图中的淡金色 */
+  color: #D4AF37;
 }
-
-/* 顶部 Tab 设计 */
 .modal-header {
   text-align: center;
   margin-bottom: 30px;
@@ -241,7 +232,7 @@ const handleSliderSuccess = () => {
   transition: all 0.3s ease;
 }
 .tab.active {
-  color: #D4AF37; /* 激活态采用顶部导航的淡金色 */
+  color: #D4AF37;
   font-weight: bold;
   text-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
 }
@@ -249,8 +240,6 @@ const handleSliderSuccess = () => {
   margin: 0 15px;
   color: rgba(255, 255, 255, 0.2);
 }
-
-/* 表单输入框体系 */
 .form-group {
   margin-bottom: 24px;
   position: relative;
@@ -268,7 +257,7 @@ input {
   box-sizing: border-box;
 }
 input:focus {
-  border-color: #8B5CF6; /* 聚焦时亮紫色边框 */
+  border-color: #8B5CF6;
   box-shadow: 0 0 10px rgba(139, 92, 246, 0.2);
   background: rgba(255, 255, 255, 0.05);
 }
@@ -276,34 +265,9 @@ input::placeholder {
   color: rgba(255, 255, 255, 0.2);
 }
 
-/* 验证码特殊布局 */
-.captcha-input-wrapper {
-  display: flex;
-  gap: 10px;
-}
 .captcha-input-wrapper input {
   flex: 1;
 }
-.captcha-btn {
-  background: transparent;
-  border: 1px solid rgba(212, 175, 55, 0.5); /* 金色边框幽灵按钮 */
-  color: #D4AF37;
-  border-radius: 8px;
-  padding: 0 15px;
-  font-size: 12px;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: all 0.3s;
-}
-.captcha-btn:hover:not(:disabled) {
-  background: rgba(212, 175, 55, 0.1);
-}
-.captcha-btn:disabled {
-  border-color: rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.3);
-  cursor: not-allowed;
-}
-
 /* 错误提示文字 */
 .error-msg {
   position: absolute;
@@ -331,15 +295,5 @@ input::placeholder {
 .submit-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 15px rgba(168, 85, 247, 0.4);
-}
-
-/* Vue 过渡动画 */
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.3s ease;
-}
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
 }
 </style>
