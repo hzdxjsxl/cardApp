@@ -62,7 +62,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive } from 'vue'
 import SliderCaptcha from './slider.vue' // 引入组件
 // 定义 Props 和 Emits，实现 v-model:visible 的双向绑定
 const props = defineProps({
@@ -75,7 +75,6 @@ const emit = defineEmits(['update:visible', 'success'])
 
 // 状态管理
 const isLogin = ref(true)
-const countdown = ref(0)
 
 const formData = reactive({
   username: '',
@@ -123,22 +122,6 @@ const resetForm = () => {
   errors.username = ''
   errors.password = ''
   errors.isCaptchaPassed = false
-}
-
-// 获取验证码模拟逻辑
-const getCaptcha = () => {
-  if (!formData.username) {
-    errors.username = '请先输入账号'
-    return
-  }
-  // 模拟发送验证码
-  countdown.value = 60
-  const timer = setInterval(() => {
-    countdown.value--
-    if (countdown.value <= 0) {
-      clearInterval(timer)
-    }
-  }, 1000)
 }
 
 // 前端严格校验逻辑
